@@ -4,26 +4,45 @@ use reqwest::header::HeaderValue;
 
 use crate::config::Config;
 
-pub fn get_endpoint(target: &str, config: &Config) -> String {
+pub fn build_endpoint(target: &str, config: &Config) -> String {
     format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
 }
 
-pub fn get_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
-        let value = format!("Bearer {}", config.token);
-        let mut token_value = HeaderValue::from_str(&value).unwrap();
-        token_value.set_sensitive(true);
+pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
+    let value = format!("Bearer {}", config.token);
+    let mut token_value = HeaderValue::from_str(&value).unwrap();
+    token_value.set_sensitive(true);
 
-        let mut headers = header::HeaderMap::new();
-        headers.insert(header::AUTHORIZATION, token_value);
+    let mut headers = header::HeaderMap::new();
+    headers.insert(header::AUTHORIZATION, token_value);
 
-        reqwest::blocking::Client::builder()
-            .default_headers(headers)
-            .build()
+    reqwest::blocking::Client::builder()
+        .default_headers(headers)
+        .build()
 }
 
-pub fn do_simple_request(target: &str, config: &Config) -> Result<reqwest::blocking::Response, reqwest::Error> {
-        let endpoint = get_endpoint(target, &config);
-        let client = get_http_client(&config)?;
+pub fn http_put_request<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error>
+where
+    T: serde::ser::Serialize
+{
+    let endpoint = build_endpoint(target, &config);
+    let client = new_http_client(&config)?;
 
-        client.get(endpoint).send()
+    client.put(endpoint).json(body).send()
+}
+
+pub fn http_post_request<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error>
+where
+    T: serde::ser::Serialize
+{
+    let endpoint = build_endpoint(target, &config);
+    let client = new_http_client(&config)?;
+
+    client.post(endpoint).json(body).send()
+}
+
+pub fn http_get_request(target: &str, config: &Config) -> Result<reqwest::blocking::Response, reqwest::Error> {
+    let endpoint = build_endpoint(target, &config);
+    let client = new_http_client(&config)?;
+    client.get(endpoint).send()
 }
