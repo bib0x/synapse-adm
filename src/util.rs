@@ -8,6 +8,49 @@ pub fn build_endpoint(target: &str, config: &Config) -> String {
     format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
 }
 
+#[macro_export]
+macro_rules! http_get{
+    ($target:expr,$config:expr)=>{
+        match util::http_get_request(&$target, &$config) {
+            Ok(response) => match response.text() {
+                Ok(body)   => println!("{}", body),
+                Err(_) => println!("[-] No HTTP response body found."),
+            }
+            Err(error) => println!("[-] {}", error),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! http_post{
+    ($target:expr,$config:expr,$body:expr)=>{
+        match util::http_post_request(&$target, &$config, &$body) {
+            Ok(response) => match response.text() {
+                Ok(body)   => println!("{}", body),
+                Err(_) => println!("[-] No HTTP response body found."),
+            }
+            Err(error) => println!("[-] {}", error),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! http_put{
+    ($target:expr,$config:expr,$body:expr)=>{
+        match util::http_put_request(&$target, &$config, &$body) {
+            Ok(response) => match response.text() {
+                Ok(body)   => println!("{}", body),
+                Err(_) => println!("[-] No HTTP response body found."),
+            }
+            Err(error) => println!("[-] {}", error),
+        }
+    }
+}
+
+pub use http_get;
+pub use http_post;
+pub use http_put;
+
 pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
     let value = format!("Bearer {}", config.token);
     let mut token_value = HeaderValue::from_str(&value).unwrap();

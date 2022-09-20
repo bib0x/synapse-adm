@@ -43,62 +43,30 @@ impl Room {
         } else {
             format!("rooms?from={}&limit={}&order_by={}", from, limit, order_by)
         };
-
-        match util::http_get_request(&target, &config) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_get!(&target, &config);
     }
 
     pub fn show_details(config: &Config, room_id: &str) {
         let target = format!("rooms/{}", room_id);
-        match util::http_get_request(&target, &config) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_get!(&target, &config);
     }
 
     pub fn list_members(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/members", room_id);
-        match util::http_get_request(&target, &config) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_get!(&target, &config);
     }
 
     pub fn show_state(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/state", room_id);
-        match util::http_get_request(&target, &config) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_get!(&target, &config);
     }
 
     pub fn is_blocked(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/block", room_id);
-        match util::http_get_request(&target, &config) {
-            Ok(response) => match response.text() {
-                Ok(body) => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_get!(&target, &config);
     }
 
     pub fn block(config: &Config, room_id: &str, block_status_wanted: bool) {
-
         let target = format!("rooms/{}/block", room_id);
         // We will panic if we can't get a HTTP response
         // XXX don't panic !
@@ -122,14 +90,7 @@ impl Room {
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: true };
-
-               match util::http_put_request(&target, &config, &body) {
-                   Ok(response) => match response.text() {
-                       Ok(body) => println!("{}", body),
-                       Err(_) => println!("[-] No HTTP response body found."),
-                   }
-                   Err(error) => println!("[-] {}", error),
-               }
+               util::http_put!(&target, &config, &body);
             }
         } else {
             if status.block == self::UNBLOCKED {
@@ -137,13 +98,7 @@ impl Room {
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: false };
-               match util::http_put_request(&target, &config, &body) {
-                   Ok(response) => match response.text() {
-                       Ok(body) => println!("{}", body),
-                       Err(_) => println!("[-] No HTTP response body found."),
-                   }
-                   Err(error) => println!("[-] {}", error),
-               }
+               util::http_put!(&target, &config, &body);
             }
         }
     }
@@ -151,14 +106,7 @@ impl Room {
     pub fn promote_user_as_admin(config: &Config, room_id: &str, user_id: &str) {
         let target = format!("rooms/{}/make_room_admin", room_id);
         let body = RoomSetAdminRequest{ user_id };
-
-        match util::http_post_request(&target, &config, &body) {
-            Ok(response) => match response.text() {
-                Ok(body) => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
+        util::http_post!(&target, &config, &body);
     }
 
 }
