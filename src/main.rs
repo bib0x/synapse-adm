@@ -68,6 +68,11 @@ fn main() {
                     config.version = 2;
                     user::User::show_details(&config, &user_id);
                 },
+                Some(("deactivate", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+
+                    user::User::deactivate(&config, &user_id);
+                },
                 _ => unreachable!(),
             }
         },

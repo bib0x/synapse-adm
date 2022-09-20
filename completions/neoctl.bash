@@ -15,6 +15,9 @@ _neoctl() {
             block)
                 cmd+="__block"
                 ;;
+            deactivate)
+                cmd+="__deactivate"
+                ;;
             help)
                 cmd+="__help"
                 ;;
@@ -316,12 +319,34 @@ _neoctl() {
             return 0
             ;;
         neoctl__user)
-            opts="-h --help show help"
+            opts="-h --help show deactivate help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        neoctl__user__deactivate)
+            opts="-u -h --user --help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                --user)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -u)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
                 *)
                     COMPREPLY=()
                     ;;

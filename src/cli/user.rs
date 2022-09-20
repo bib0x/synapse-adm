@@ -14,4 +14,16 @@ pub fn build_user_commands() -> Command <'static> {
                     .help("User identifier")
                 )
         )
+        .subcommand(
+            Command::new("deactivate")
+                .about("Deactivate Matrix user")
+                .arg(
+                    Arg::new("user_id")
+                    .long("user")
+                    .short('u')
+                    .takes_value(true)
+                    .required(true)
+                    .help("User identifier")
+                )
+        )
 }
