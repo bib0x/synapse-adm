@@ -82,8 +82,44 @@ fn main() {
                 },
                 Some(("deactivate", sub_matches)) => {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
-
                     user::User::deactivate(&config, &user_id);
+                },
+                Some(("whois", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::whois(&config, &user_id);
+                },
+                Some(("isadmin", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::isadmin(&config, &user_id);
+                },
+                Some(("promote", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::setadmin_server(&config, &user_id, true);
+                },
+                Some(("retrograde", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::setadmin_server(&config, &user_id, false);
+                },
+                Some(("rooms", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::joined_rooms(&config, &user_id);
+                },
+                Some(("accountdata", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::account_data(&config, &user_id);
+                },
+                Some(("medias", sub_matches)) => {
+                    let order_by = sub_matches.get_one::<String>("order_by").unwrap();
+                    let limit = sub_matches.get_one::<u64>("limit").unwrap();
+                    let from = sub_matches.get_one::<u64>("from").unwrap();
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::list_medias(&config, *from, &order_by, *limit, &user_id);
+                },
+                Some(("devices", sub_matches)) => {
+                    let device_id = sub_matches.get_one::<String>("device_id");
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    config.version = 2;
+                    user::User::list_devices(&config, &user_id, device_id);
                 },
                 _ => unreachable!(),
             }
