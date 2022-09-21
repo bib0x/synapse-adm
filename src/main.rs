@@ -62,6 +62,18 @@ fn main() {
 
         Some(("user", sub_matches)) => {
             match sub_matches.subcommand() {
+                Some(("ls", sub_matches)) => {
+                    let order_by = sub_matches.get_one::<String>("order_by").unwrap();
+                    let limit = sub_matches.get_one::<u64>("limit").unwrap();
+                    let from = sub_matches.get_one::<u64>("from").unwrap();
+                    let guests = sub_matches.get_one::<bool>("guests").unwrap();
+                    let deactivated= sub_matches.get_one::<bool>("deactivated").unwrap();
+                    let name = sub_matches.get_one::<String>("name");
+                    let user_id = sub_matches.get_one::<String>("user_id");
+
+                    config.version = 2;
+                    user::User::list_all_by(&config, *from, &order_by, *limit, *guests, *deactivated, name, user_id);
+                },
                 Some(("show", sub_matches)) => {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
 
