@@ -47,9 +47,17 @@ macro_rules! http_put{
     }
 }
 
+#[macro_export]
+macro_rules! json_stdout{
+    ($msg:expr)=>{
+        println!("{}", serde_json::json!({"output": $msg}))
+    }
+}
+
 pub use http_get;
 pub use http_post;
 pub use http_put;
+pub use json_stdout;
 
 pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
     let value = format!("Bearer {}", config.token);

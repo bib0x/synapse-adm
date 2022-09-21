@@ -86,7 +86,8 @@ impl Room {
         
         if block_status_wanted == self::BLOCKED {
             if status.block == self::BLOCKED {
-                println!("[*] room {} already blocked", room_id); // XXX convert to json
+                let message = format!("room {} already blocked", room_id);
+                util::json_stdout!(message);
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: true };
@@ -94,7 +95,8 @@ impl Room {
             }
         } else {
             if status.block == self::UNBLOCKED {
-                println!("[*] room {} already unblocked", room_id); // XXX convert to json
+                let msg = format!("room {} already unblocked", room_id);
+                util::json_stdout!(msg);
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: false };
