@@ -84,7 +84,7 @@ fn main() {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
                     user::User::deactivate(&config, &user_id);
                 },
-                Some(("whois", sub_matches)) => {
+                Some(("sessions", sub_matches)) => {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
                     user::User::whois(&config, &user_id);
                 },
@@ -120,6 +120,36 @@ fn main() {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
                     config.version = 2;
                     user::User::list_devices(&config, &user_id, device_id);
+                },
+                Some(("pushers", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::list_pushers(&config, &user_id);
+                },
+                Some(("ban", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::shadow_ban(&config, &user_id);
+                },
+                Some(("unban", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::shadow_unban(&config, &user_id);
+                },
+                Some(("ratelimit", sub_matches)) => {
+                    let message_limit = sub_matches.get_one::<u64>("message");
+                    let burst_count = sub_matches.get_one::<u64>("burst");
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::ratelimit(&config, message_limit, burst_count, &user_id);
+                },
+                Some(("unratelimit", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::unratelimit(&config, &user_id);
+                },
+                Some(("isavailable", sub_matches)) => {
+                    let username = sub_matches.get_one::<String>("username").unwrap();
+                    user::User::isavailable(&config, &username);
+                },
+                Some(("login", sub_matches)) => {
+                    let user_id = sub_matches.get_one::<String>("user_id").unwrap();
+                    user::User::loginas(&config, &user_id);
                 },
                 _ => unreachable!(),
             }
