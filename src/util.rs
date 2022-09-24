@@ -4,6 +4,21 @@ use reqwest::header::HeaderValue;
 
 use crate::config::Config;
 
+macro_rules! generate_http_funcs {
+    ($var:ident => $($func:ident),*) => {
+        $(
+            pub fn $func<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error> 
+            where
+                T: serde::ser::Serialize
+            {
+                 let endpoint = build_endpoint(target, &config);
+                 let client = new_http_client(&config)?;
+                 client.$func(endpoint).json(body).send()
+            }
+        )*
+    }
+}
+
 #[macro_export]
 macro_rules! http{
     (GET $target:expr,$config:expr) => {
@@ -11,15 +26,15 @@ macro_rules! http{
         util::http_print_result(result);
     };
     (POST $target:expr,$config:expr,$body:expr) => {
-        let result = util::http_post_request($target, $config, $body);
+        let result = util::post($target, $config, $body);
         util::http_print_result(result);
     };
     (PUT $target:expr,$config:expr,$body:expr) => {
-        let result = util::http_put_request($target, $config, $body);
+        let result = util::put($target, $config, $body);
         util::http_print_result(result);
     };
     (DELETE $target:expr,$config:expr,$body:expr) => {
-        let result = util::http_delete_request($target, $config, $body);
+        let result = util::delete($target, $config, $body);
         util::http_print_result(result);
     };
 }
@@ -33,6 +48,8 @@ macro_rules! json_stdout{
 
 pub use http;
 pub use json_stdout;
+
+generate_http_funcs!(f_names => post, put, delete);
 
 pub fn build_endpoint(target: &str, config: &Config) -> String {
     format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
@@ -49,36 +66,6 @@ pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Cl
     reqwest::blocking::Client::builder()
         .default_headers(headers)
         .build()
-}
-
-pub fn http_put_request<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error>
-where
-    T: serde::ser::Serialize
-{
-    let endpoint = build_endpoint(target, &config);
-    let client = new_http_client(&config)?;
-
-    client.put(endpoint).json(body).send()
-}
-
-pub fn http_post_request<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error>
-where
-    T: serde::ser::Serialize
-{
-    let endpoint = build_endpoint(target, &config);
-    let client = new_http_client(&config)?;
-
-    client.post(endpoint).json(body).send()
-}
-
-pub fn http_delete_request<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error>
-where
-    T: serde::ser::Serialize
-{
-    let endpoint = build_endpoint(target, &config);
-    let client = new_http_client(&config)?;
-
-    client.delete(endpoint).json(body).send()
 }
 
 pub fn http_get_request(target: &str, config: &Config) -> Result<reqwest::blocking::Response, reqwest::Error> {
