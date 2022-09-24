@@ -4,25 +4,10 @@ use reqwest::header::HeaderValue;
 
 use crate::config::Config;
 
-macro_rules! generate_http_funcs {
-    ($var:ident => $($func:ident),*) => {
-        $(
-            pub fn $func<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error> 
-            where
-                T: serde::ser::Serialize
-            {
-                 let endpoint = build_endpoint(target, &config);
-                 let client = new_http_client(&config)?;
-                 client.$func(endpoint).json(body).send()
-            }
-        )*
-    }
-}
-
 #[macro_export]
 macro_rules! http{
     (GET $target:expr,$config:expr) => {
-        let result = util::http_get_request($target, $config);
+        let result = util::get($target, $config);
         util::http_print_result(result);
     };
     (POST $target:expr,$config:expr,$body:expr) => {
@@ -49,7 +34,6 @@ macro_rules! json_stdout{
 pub use http;
 pub use json_stdout;
 
-generate_http_funcs!(f_names => post, put, delete);
 
 pub fn build_endpoint(target: &str, config: &Config) -> String {
     format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
@@ -68,12 +52,6 @@ pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Cl
         .build()
 }
 
-pub fn http_get_request(target: &str, config: &Config) -> Result<reqwest::blocking::Response, reqwest::Error> {
-    let endpoint = build_endpoint(target, &config);
-    let client = new_http_client(&config)?;
-    client.get(endpoint).send()
-}
-
 pub fn http_print_result(result: Result<reqwest::blocking::Response, reqwest::Error>) {
         match result { 
             Ok(response) => match response.text() {
@@ -86,3 +64,26 @@ pub fn http_print_result(result: Result<reqwest::blocking::Response, reqwest::Er
             }
         }
 }
+
+pub fn get(target: &str, config: &Config) -> Result<reqwest::blocking::Response, reqwest::Error> {
+    let endpoint = build_endpoint(target, &config);
+    let client = new_http_client(&config)?;
+    client.get(endpoint).send()
+}
+
+macro_rules! generate_http_funcs {
+    ($var:ident => $($func:ident),*) => {
+        $(
+            pub fn $func<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error> 
+            where
+                T: serde::ser::Serialize
+            {
+                 let endpoint = build_endpoint(target, &config);
+                 let client = new_http_client(&config)?;
+                 client.$func(endpoint).json(body).send()
+            }
+        )*
+    }
+}
+
+generate_http_funcs!(f_names => post, put, delete);

@@ -70,7 +70,7 @@ impl Room {
         let target = format!("rooms/{}/block", room_id);
         // We will panic if we can't get a HTTP response
         // XXX don't panic !
-        let status = match util::http_get_request(&target, &config) {
+        let status = match util::get(&target, &config) {
             Ok(response) => {
                 if response.status() == reqwest::StatusCode::OK {
                     match response.json::<RoomBlockStatus>() {

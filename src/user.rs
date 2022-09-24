@@ -134,7 +134,7 @@ impl User {
                 UserRatelimitBody{ messages_per_second: *message_limit.unwrap(), burst_count: *burst_count.unwrap() }
            } else {
                 // Get ratelimit currenlty set
-                let mut rate_limit = match util::http_get_request(&target, &config) {
+                let mut rate_limit = match util::get(&target, &config) {
                     Ok(response) => { 
                         if response.status() == reqwest::StatusCode::OK {
                             match response.json::<UserRatelimitBody>() {
