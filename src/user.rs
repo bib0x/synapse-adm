@@ -54,49 +54,49 @@ impl User {
             }
         };
 
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn show_details(config: &Config, user_id: &str) {
         let target = format!("users/{}", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn deactivate(config: &Config, user_id: &str) {
         let target = format!("deactivate/{}", user_id);
         let body = UserDeactivateBody { erase: false };
-        util::http_post!(&target, &config, &body);
+        util::http!(POST &target, &config, &body);
     }
 
     pub fn whois(config: &Config, user_id: &str) {
         let target = format!("whois/{}", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn isadmin(config: &Config, user_id: &str) {
         let target = format!("users/{}/admin", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn setadmin_server(config: &Config, user_id: &str, admin: bool) {
         let target = format!("users/{}/admin", user_id);
         let body = UserAdminPromotionBody { admin }; 
-        util::http_put!(&target, &config, &body);
+        util::http!(PUT &target, &config, &body);
     }
 
     pub fn joined_rooms(config: &Config, user_id: &str) {
         let target = format!("users/{}/joined_rooms", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
     
     pub fn account_data(config: &Config, user_id: &str) {
         let target = format!("users/{}/accountdata", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn list_medias(config: &Config, from: u64, order_by: &str, limit: u64, user_id: &str) {
         let target = format!("users/{}/media?from={}&order_by={}&limit={}", user_id, from, order_by, limit);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn list_devices(config: &Config, user_id: &str, device_id: Option<&String>) {
@@ -105,30 +105,30 @@ impl User {
         } else {
             format!("users/{}/devices", user_id)
         };
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn list_pushers(config: &Config, user_id: &str) {
         let target = format!("users/{}/pushers", user_id);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn shadow_ban(config: &Config, user_id: &str) {
         let target = format!("users/{}/shadow_ban", user_id);
         let body = UserEmptyBody{};
-        util::http_post!(&target, &config, &body);
+        util::http!(POST &target, &config, &body);
     }
 
     pub fn shadow_unban(config: &Config, user_id: &str) {
         let target = format!("users/{}/shadow_ban", user_id);
         let body = UserEmptyBody{};
-        util::http_delete!(&target, &config, &body);
+        util::http!(DELETE &target, &config, &body);
     }
 
     pub fn ratelimit(config: &Config, message_limit: Option<&u64>, burst_count: Option<&u64>, user_id: &str) {
         let target = format!("users/{}/override_ratelimit", user_id);
         if message_limit.is_none() && burst_count.is_none() {
-            util::http_get!(&target, &config);
+            util::http!(GET &target, &config);
         } else {
            let body = if message_limit.is_some() && burst_count.is_some() {
                 UserRatelimitBody{ messages_per_second: *message_limit.unwrap(), burst_count: *burst_count.unwrap() }
@@ -158,25 +158,25 @@ impl User {
 
                 rate_limit
            };
-           util::http_post!(&target, &config, &body);
+           util::http!(POST &target, &config, &body);
         }
     }
 
     pub fn unratelimit(config: &Config, user_id: &str) {
         let target = format!("users/{}/override_ratelimit", user_id);
         let body = UserEmptyBody{};
-        util::http_delete!(&target, &config, &body);
+        util::http!(DELETE &target, &config, &body);
     }
 
     pub fn isavailable(config: &Config, username: &str) {
         let target = format!("username_available?username={}", username);
-        util::http_get!(&target, &config);
+        util::http!(GET &target, &config);
     }
 
     pub fn loginas(config: &Config, user_id: &str) {
         let target = format!("users/{}/login", user_id);
         let body = UserEmptyBody{};
-        util::http_post!(&target, &config, &body);
+        util::http!(POST &target, &config, &body);
     }
 
 }

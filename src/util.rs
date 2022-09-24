@@ -4,60 +4,24 @@ use reqwest::header::HeaderValue;
 
 use crate::config::Config;
 
-pub fn build_endpoint(target: &str, config: &Config) -> String {
-    format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
-}
-
 #[macro_export]
-macro_rules! http_get{
-    ($target:expr,$config:expr)=>{
-        match util::http_get_request(&$target, &$config) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! http_post{
-    ($target:expr,$config:expr,$body:expr)=>{
-        match util::http_post_request(&$target, &$config, &$body) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! http_put{
-    ($target:expr,$config:expr,$body:expr)=>{
-        match util::http_put_request(&$target, &$config, &$body) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! http_delete{
-    ($target:expr,$config:expr,$body:expr)=>{
-        match util::http_delete_request(&$target, &$config, &$body) {
-            Ok(response) => match response.text() {
-                Ok(body)   => println!("{}", body),
-                Err(_) => println!("[-] No HTTP response body found."),
-            }
-            Err(error) => println!("[-] {}", error),
-        }
-    }
+macro_rules! http{
+    (GET $target:expr,$config:expr) => {
+        let result = util::http_get_request($target, $config);
+        util::http_print_result(result);
+    };
+    (POST $target:expr,$config:expr,$body:expr) => {
+        let result = util::http_post_request($target, $config, $body);
+        util::http_print_result(result);
+    };
+    (PUT $target:expr,$config:expr,$body:expr) => {
+        let result = util::http_put_request($target, $config, $body);
+        util::http_print_result(result);
+    };
+    (DELETE $target:expr,$config:expr,$body:expr) => {
+        let result = util::http_delete_request($target, $config, $body);
+        util::http_print_result(result);
+    };
 }
 
 #[macro_export]
@@ -67,11 +31,12 @@ macro_rules! json_stdout{
     }
 }
 
-pub use http_get;
-pub use http_post;
-pub use http_put;
-pub use http_delete;
+pub use http;
 pub use json_stdout;
+
+pub fn build_endpoint(target: &str, config: &Config) -> String {
+    format!("http://{}:{}/_synapse/admin/v{}/{}", config.hostname, config.port, config.version, target)
+}
 
 pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
     let value = format!("Bearer {}", config.token);
@@ -120,4 +85,17 @@ pub fn http_get_request(target: &str, config: &Config) -> Result<reqwest::blocki
     let endpoint = build_endpoint(target, &config);
     let client = new_http_client(&config)?;
     client.get(endpoint).send()
+}
+
+pub fn http_print_result(result: Result<reqwest::blocking::Response, reqwest::Error>) {
+        match result { 
+            Ok(response) => match response.text() {
+                Ok(body) => println!("{}", body),
+                Err(_)   => json_stdout!("No HTTP response body found."),
+            }
+            Err(error)   => {
+                let message = format!("{}", error);
+                json_stdout!(message);
+            }
+        }
 }
