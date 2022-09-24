@@ -72,7 +72,7 @@ pub fn get(target: &str, config: &Config) -> Result<reqwest::blocking::Response,
 }
 
 macro_rules! generate_http_funcs {
-    ($var:ident => $($func:ident),*) => {
+    ($($func:ident),*) => {
         $(
             pub fn $func<T>(target: &str, config: &Config, body: &T) -> Result<reqwest::blocking::Response, reqwest::Error> 
             where
@@ -86,4 +86,4 @@ macro_rules! generate_http_funcs {
     }
 }
 
-generate_http_funcs!(f_names => post, put, delete);
+generate_http_funcs!(post, put, delete);
