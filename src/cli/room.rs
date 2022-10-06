@@ -1,6 +1,6 @@
 use clap::{Arg, Command};
 
-pub fn build_room_commands() -> Command <'static> {
+pub fn build_room_commands() -> Command {
     Command::new("room")
         .subcommand(
             Command::new("ls")
@@ -11,7 +11,6 @@ pub fn build_room_commands() -> Command <'static> {
                         .short('f')
                         .value_parser(clap::value_parser!(u64))
                         .default_value("0")
-                        .takes_value(true)
                         .help("Offset in the returned list.")
                 )
                 .arg(
@@ -20,14 +19,12 @@ pub fn build_room_commands() -> Command <'static> {
                         .short('l')
                         .value_parser(clap::value_parser!(u64))
                         .default_value("100")
-                        .takes_value(true)
                         .help("Maximum amount of rooms to return")
                 )
                 .arg(
                     Arg::new("name")
                         .long("name")
                         .short('n')
-                        .takes_value(true)
                         .help("Filter rooms by their room name, canonical alias and room id")
                 )
                 .arg(
@@ -35,7 +32,6 @@ pub fn build_room_commands() -> Command <'static> {
                         .long("order_by")
                         .short('o')
                         .default_value("name")
-                        .takes_value(true)
                         .value_parser([
                           "alphabetical", "size", "name", "canonical_alias",
                           "joined_members", "joined_local_members", "version",
@@ -52,7 +48,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -64,7 +59,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -76,7 +70,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -88,7 +81,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -100,7 +92,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -112,7 +103,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -124,7 +114,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("room_id")
                 .long("id")
                 .short('i')
-                .takes_value(true)
                 .required(true)
                 .help("Room identifier")
             )
@@ -132,7 +121,6 @@ pub fn build_room_commands() -> Command <'static> {
                 Arg::new("user_id")
                 .long("user")
                 .short('u')
-                .takes_value(true)
                 .required(true)
                 .help("User identifier")
             )
