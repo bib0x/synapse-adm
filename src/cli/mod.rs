@@ -4,7 +4,7 @@ pub mod room;
 pub mod user;
 
 
-pub fn build_cli(program_name: &str) -> Command<'static> {
+pub fn build_cli(program_name: &'static str) -> Command {
     Command::new(program_name)
         .about("CLI to consume Synapse API for Matrix server")
         .subcommand(room::build_room_commands())
