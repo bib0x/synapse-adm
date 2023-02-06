@@ -1,7 +1,3 @@
-// Ideas: config file to choose API versions ? 
-
-use std::env;
-
 mod cli;
 mod config;
 mod room;
@@ -9,10 +5,7 @@ mod user;
 mod util;
 
 fn main() {
-
-    // XXX don't panic
-    let token = env::var("MATRIX_TOKEN").unwrap();
-    let mut config = config::Config::new("localhost", 8080, &token, 1);
+    let mut config = config::Config::new();
 
     let matches = cli::build_cli("neoctl").get_matches();
 

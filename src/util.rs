@@ -40,7 +40,12 @@ pub fn build_endpoint(target: &str, config: &Config) -> String {
 }
 
 pub fn new_http_client(config: &Config) -> reqwest::Result<reqwest::blocking::Client> {
-    let value = format!("Bearer {}", config.token);
+    let token: String = if let Some(t) = &config.token {
+        t.to_owned()
+    } else {
+        String::default()
+    };
+    let value = format!("Bearer {}", token);
     let mut token_value = HeaderValue::from_str(&value).unwrap();
     token_value.set_sensitive(true);
 

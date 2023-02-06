@@ -7,6 +7,8 @@ build = "build.rs"
 
 [dependencies]
 clap = "4.0.9"
+figment = { version = "0.10.8", features = ["env", "toml"] }
+home = "0.5.4"
 reqwest = { version = "0.11.11", features = ["blocking", "json"] }
 serde = { version = "1.0.144", features = ["derive"] }
 serde_json = "1.0.85"
