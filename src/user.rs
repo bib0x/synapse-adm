@@ -1,6 +1,7 @@
 use crate::config::Config;
-use crate::util;
+use crate::helper;
 
+use neoctl::http_bis;
 use serde::{Deserialize,Serialize};
 
 pub struct User;
@@ -31,7 +32,7 @@ pub struct UserLogoutBody {
 
 impl User {
 
-    pub fn list_all_by(
+    pub async fn list_all_by(
         config: &Config, 
         from: u64, 
         order_by: &str, 
@@ -49,95 +50,96 @@ impl User {
                 format!("users?from={}&limit={}&order_by={}&name={}&guests={}&deactivated={}", 
                         from, limit, order_by, name, guests, deactivated)
             } else {
-               format!("rooms?from={}&limit={}&order_by={}&guests={}&deactivated={}", 
+               format!("users?from={}&limit={}&order_by={}&guests={}&deactivated={}", 
                        from, limit, order_by, guests, deactivated) 
             }
         };
 
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn show_details(config: &Config, user_id: &str) {
+    pub async fn show_details(config: &Config, user_id: &str) {
         let target = format!("users/{}", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn deactivate(config: &Config, user_id: &str) {
+    pub async fn deactivate(config: &Config, user_id: &str) {
         let target = format!("deactivate/{}", user_id);
         let body = UserDeactivateBody { erase: false };
-        util::http!(POST &target, &config, &body);
+        http_bis!(POST &target, &config, &body);
     }
 
-    pub fn whois(config: &Config, user_id: &str) {
+    pub async fn whois(config: &Config, user_id: &str) {
         let target = format!("whois/{}", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn isadmin(config: &Config, user_id: &str) {
+    pub async fn isadmin(config: &Config, user_id: &str) {
         let target = format!("users/{}/admin", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn setadmin_server(config: &Config, user_id: &str, admin: bool) {
+    pub async fn setadmin_server(config: &Config, user_id: &str, admin: bool) {
         let target = format!("users/{}/admin", user_id);
         let body = UserAdminPromotionBody { admin }; 
-        util::http!(PUT &target, &config, &body);
+        http_bis!(PUT &target, &config, &body);
     }
 
-    pub fn joined_rooms(config: &Config, user_id: &str) {
+    pub async fn joined_rooms(config: &Config, user_id: &str) {
         let target = format!("users/{}/joined_rooms", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
     
-    pub fn account_data(config: &Config, user_id: &str) {
+    pub async fn account_data(config: &Config, user_id: &str) {
         let target = format!("users/{}/accountdata", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn list_medias(config: &Config, from: u64, order_by: &str, limit: u64, user_id: &str) {
+    pub async fn list_medias(config: &Config, from: u64, order_by: &str, limit: u64, user_id: &str) {
         let target = format!("users/{}/media?from={}&order_by={}&limit={}", user_id, from, order_by, limit);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn list_devices(config: &Config, user_id: &str, device_id: Option<&String>) {
+    pub async fn list_devices(config: &Config, user_id: &str, device_id: Option<&String>) {
         let target = if let Some(device_id) = device_id {
             format!("users/{}/devices/{}", user_id, device_id)
         } else {
             format!("users/{}/devices", user_id)
         };
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn list_pushers(config: &Config, user_id: &str) {
+    pub async fn list_pushers(config: &Config, user_id: &str) {
         let target = format!("users/{}/pushers", user_id);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn shadow_ban(config: &Config, user_id: &str) {
+    pub async fn shadow_ban(config: &Config, user_id: &str) {
         let target = format!("users/{}/shadow_ban", user_id);
         let body = UserEmptyBody{};
-        util::http!(POST &target, &config, &body);
+        http_bis!(POST &target, &config, &body);
     }
 
-    pub fn shadow_unban(config: &Config, user_id: &str) {
+    pub async fn shadow_unban(config: &Config, user_id: &str) {
         let target = format!("users/{}/shadow_ban", user_id);
         let body = UserEmptyBody{};
-        util::http!(DELETE &target, &config, &body);
+        http_bis!(DELETE &target, &config, &body);
     }
 
-    pub fn ratelimit(config: &Config, message_limit: Option<&u64>, burst_count: Option<&u64>, user_id: &str) {
+    pub async fn ratelimit(config: &Config, message_limit: Option<&u64>, burst_count: Option<&u64>, user_id: &str) {
         let target = format!("users/{}/override_ratelimit", user_id);
         if message_limit.is_none() && burst_count.is_none() {
-            util::http!(GET &target, &config);
+            http_bis!(GET &target, &config);
         } else {
            let body = if message_limit.is_some() && burst_count.is_some() {
                 UserRatelimitBody{ messages_per_second: *message_limit.unwrap(), burst_count: *burst_count.unwrap() }
            } else {
+                let client = helper::HttpClient::new(&config, &target);
                 // Get ratelimit currenlty set
-                let mut rate_limit = match util::get(&target, &config) {
+                let mut rate_limit = match client.get().await {
                     Ok(response) => { 
                         if response.status() == reqwest::StatusCode::OK {
-                            match response.json::<UserRatelimitBody>() {
+                            match response.json::<UserRatelimitBody>().await {
                                 Ok(data) => data,
                                 _ => UserRatelimitBody{messages_per_second: 0, burst_count: 0},
                             }
@@ -158,25 +160,25 @@ impl User {
 
                 rate_limit
            };
-           util::http!(POST &target, &config, &body);
+           http_bis!(POST &target, &config, &body);
         }
     }
 
-    pub fn unratelimit(config: &Config, user_id: &str) {
+    pub async fn unratelimit(config: &Config, user_id: &str) {
         let target = format!("users/{}/override_ratelimit", user_id);
         let body = UserEmptyBody{};
-        util::http!(DELETE &target, &config, &body);
+        http_bis!(DELETE &target, &config, &body);
     }
 
-    pub fn isavailable(config: &Config, username: &str) {
+    pub async fn isavailable(config: &Config, username: &str) {
         let target = format!("username_available?username={}", username);
-        util::http!(GET &target, &config);
+        http_bis!(GET &target, &config);
     }
 
-    pub fn loginas(config: &Config, user_id: &str) {
+    pub async fn loginas(config: &Config, user_id: &str) {
         let target = format!("users/{}/login", user_id);
         let body = UserEmptyBody{};
-        util::http!(POST &target, &config, &body);
+        http_bis!(POST &target, &config, &body);
     }
 
 }
