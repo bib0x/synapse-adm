@@ -473,20 +473,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "neoctl"
-version = "0.1.0"
-dependencies = [
- "clap",
- "clap_complete",
- "figment",
- "home",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "num_cpus"
 version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -846,6 +832,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "synapse-adm"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "figment",
+ "home",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

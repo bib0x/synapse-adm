@@ -1,4 +1,4 @@
-use neoctl::http_funcs_with_body;
+use synapse_adm::http_funcs_with_body;
 use reqwest::header;
 
 use crate::config::Config;

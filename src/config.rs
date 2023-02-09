@@ -11,7 +11,7 @@ pub struct Config {
 }
 
 const DEFAULT_CONFIG_FILE : &str = "settings.toml";
-const DEFAULT_CONFIG_DIR : &str = ".config/neoctl";
+const DEFAULT_CONFIG_DIR : &str = ".config/synapse-adm";
 const DEFAULT_CONFIG_HOSTNAME: &str = "localhost";
 const DEFAULT_CONFIG_PORT: u32 = 8080;
 const DEFAULT_API_VERSION: u8 = 1;

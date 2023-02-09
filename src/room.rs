@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::helper;
 
-use neoctl::http;
+use synapse_adm::http;
 use reqwest;
 use serde::{Deserialize, Serialize};
 

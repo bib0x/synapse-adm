@@ -8,7 +8,7 @@ mod user;
 async fn main() {
     let mut config = config::Config::new();
 
-    let matches = cli::build_cli("neoctl").get_matches();
+    let matches = cli::build_cli("synapse-adm").get_matches();
 
     match matches.subcommand() {
 
