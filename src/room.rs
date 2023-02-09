@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::helper;
 
-use neoctl::http_bis;
+use neoctl::http;
 use reqwest;
 use serde::{Deserialize, Serialize};
 
@@ -44,27 +44,27 @@ impl Room {
         } else {
             format!("rooms?from={}&limit={}&order_by={}", from, limit, order_by)
         };
-        http_bis!(GET &target, &config);
+        http!(GET &target, &config);
     }
 
     pub async fn show_details(config: &Config, room_id: &str) {
         let target = format!("rooms/{}", room_id);
-        http_bis!(GET &target, &config);
+        http!(GET &target, &config);
     }
 
     pub async fn list_members(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/members", room_id);
-        http_bis!(GET &target, &config);
+        http!(GET &target, &config);
     }
 
     pub async fn show_state(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/state", room_id);
-        http_bis!(GET &target, &config);
+        http!(GET &target, &config);
     }
 
     pub async fn is_blocked(config: &Config, room_id: &str) {
         let target = format!("rooms/{}/block", room_id);
-        http_bis!(GET &target, &config);
+        http!(GET &target, &config);
     }
 
     pub async fn block(config: &Config, room_id: &str, block_status_wanted: bool) {
@@ -93,7 +93,7 @@ impl Room {
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: true };
-               http_bis!(PUT &target, &config, &body);
+               http!(PUT &target, &config, &body);
             }
         } else {
             if status.block == self::UNBLOCKED {
@@ -102,7 +102,7 @@ impl Room {
             } else {
                let target = format!("rooms/{}/block", room_id);
                let body = RoomBlockRequest{ block: false };
-               http_bis!(PUT &target, &config, &body);
+               http!(PUT &target, &config, &body);
             }
         }
     }
@@ -110,7 +110,7 @@ impl Room {
     pub async fn promote_user_as_admin(config: &Config, room_id: &str, user_id: &str) {
         let target = format!("rooms/{}/make_room_admin", room_id);
         let body = RoomSetAdminRequest{ user_id };
-        http_bis!(POST &target, &config, &body);
+        http!(POST &target, &config, &body);
     }
 
 }

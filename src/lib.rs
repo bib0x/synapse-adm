@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! http_bis{
+macro_rules! http{
     (GET $target:expr,$config:expr) => {
         let client = helper::HttpClient::new($config, $target);
         let response = client.get().await;
