@@ -135,7 +135,9 @@ async fn main() {
                     let message_limit = sub_matches.get_one::<u64>("message");
                     let burst_count = sub_matches.get_one::<u64>("burst");
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();
-                    user::User::ratelimit(&config, message_limit, burst_count, &user_id).await;
+                    if let Err(e) = user::User::ratelimit(&config, message_limit, burst_count, &user_id).await {
+                        eprintln!("{}", e);
+                    }
                 },
                 Some(("unratelimit", sub_matches)) => {
                     let user_id = sub_matches.get_one::<String>("user_id").unwrap();

@@ -1,3 +1,4 @@
+use std::error::Error;
 use crate::config::Config;
 use crate::helper;
 
@@ -19,7 +20,7 @@ pub struct UserAdminPromotionBody {
 #[derive(Serialize)]
 pub struct UserEmptyBody;
 
-#[derive(Deserialize,Serialize)]
+#[derive(Deserialize,Serialize,Debug)]
 pub struct UserRatelimitBody {
     messages_per_second: u64,
     burst_count: u64,
@@ -126,7 +127,7 @@ impl User {
         http!(DELETE &target, &config, &body);
     }
 
-    pub async fn ratelimit(config: &Config, message_limit: Option<&u64>, burst_count: Option<&u64>, user_id: &str) {
+    pub async fn ratelimit(config: &Config, message_limit: Option<&u64>, burst_count: Option<&u64>, user_id: &str) -> Result<(), Box<dyn Error>>{
         let target = format!("users/{}/override_ratelimit", user_id);
         if message_limit.is_none() && burst_count.is_none() {
             http!(GET &target, &config);
@@ -135,20 +136,12 @@ impl User {
                 UserRatelimitBody{ messages_per_second: *message_limit.unwrap(), burst_count: *burst_count.unwrap() }
            } else {
                 let client = helper::HttpClient::new(&config, &target);
-                // Get ratelimit currenlty set
-                let mut rate_limit = match client.get().await {
-                    Ok(response) => { 
-                        if response.status() == reqwest::StatusCode::OK {
-                            match response.json::<UserRatelimitBody>().await {
-                                Ok(data) => data,
-                                _ => UserRatelimitBody{messages_per_second: 0, burst_count: 0},
-                            }
-                        } else {
-                            panic!("[-]  No HTTP response body found.");
-                        }
-                    },
-                    Err(_) => panic!("[-] No HTTP response body found."),
-                };
+                // Get ratelimit currenlty set or use default value
+                let mut rate_limit = client.get()
+                                    .await?
+                                    .json::<UserRatelimitBody>()
+                                    .await
+                                    .unwrap_or_else(|_| { UserRatelimitBody{messages_per_second: 0, burst_count: 0} });
 
                 if message_limit.is_some() {
                     rate_limit.messages_per_second = *message_limit.unwrap();
@@ -162,6 +155,7 @@ impl User {
            };
            http!(POST &target, &config, &body);
         }
+        Ok(())
     }
 
     pub async fn unratelimit(config: &Config, user_id: &str) {
