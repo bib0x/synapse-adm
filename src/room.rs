@@ -1,8 +1,9 @@
+use std::{error::Error, fmt};
+
 use crate::config::Config;
 use crate::helper;
 
 use synapse_adm::http;
-use reqwest;
 use serde::{Deserialize, Serialize};
 
 pub struct Room {
@@ -32,6 +33,15 @@ struct RoomBlockRequest {
 #[derive(Serialize)]
 struct RoomSetAdminRequest<'a> {
     user_id: &'a str,
+}
+
+#[derive(Debug)]
+pub struct ParseJsonError;
+impl Error for ParseJsonError {}
+impl fmt::Display for  ParseJsonError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Invalid or empty JSON data")
+    }
 }
 
 impl Room {
@@ -67,25 +77,15 @@ impl Room {
         http!(GET &target, &config);
     }
 
-    pub async fn block(config: &Config, room_id: &str, block_status_wanted: bool) {
+    pub async fn block(config: &Config, room_id: &str, block_status_wanted: bool) -> Result<(), Box<dyn Error>> {
         let target = format!("rooms/{}/block", room_id);
-        // We will panic if we can't get a HTTP response
-        // XXX don't panic !
         let client = helper::HttpClient::new(&config, &target);
-        let status = match client.get().await {
-            Ok(response) => {
-                if response.status() == reqwest::StatusCode::OK {
-                    match response.json::<RoomBlockStatus>().await {
-                        Ok(data) => data,
-                        _ => panic!("[-] No HTTP response body found."),
-                    }
-                } else {
-                    panic!("[-]  No HTTP response body found.");
-                }
-            },
-            Err(_) => panic!("[-] No HTTP response body found."),
-        };
-        
+        let status = client.get()
+                          .await?
+                          .json::<RoomBlockStatus>()
+                          .await
+                          .map_err(|_| ParseJsonError)?;
+
         if block_status_wanted == self::BLOCKED {
             if status.block == self::BLOCKED {
                 let message = format!("room {} already blocked", room_id);
@@ -105,6 +105,7 @@ impl Room {
                http!(PUT &target, &config, &body);
             }
         }
+        Ok(())
     }
 
     pub async fn promote_user_as_admin(config: &Config, room_id: &str, user_id: &str) {

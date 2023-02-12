@@ -39,11 +39,15 @@ async fn main() {
                 },
                 Some(("block", sub_matches)) => {
                     let room_id = sub_matches.get_one::<String>("room_id").unwrap();
-                    room::Room::block(&config, &room_id, room::BLOCKED).await;
+                    if let Err(e) = room::Room::block(&config, &room_id, room::BLOCKED).await {
+                        eprintln!("{}", serde_json::json!({"error": e.to_string()}));
+                    }
                 },
                 Some(("unblock", sub_matches)) => {
                     let room_id = sub_matches.get_one::<String>("room_id").unwrap();
-                    room::Room::block(&config, &room_id, room::UNBLOCKED).await;
+                    if let Err(e) = room::Room::block(&config, &room_id, room::UNBLOCKED).await {
+                        eprintln!("{}", serde_json::json!({"error": e.to_string()}));
+                    }
                 },
                 Some(("setadm", sub_matches)) => {
                     let room_id = sub_matches.get_one::<String>("room_id").unwrap();
